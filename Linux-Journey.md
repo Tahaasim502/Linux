@@ -400,3 +400,388 @@ file Linux.txt
 
 ---
 
+
+
+## 📂 File Viewing
+
+### `cat` — concatenate / display file contents
+
+Used to show the contents of a file in the terminal.
+
+```bash
+cat Linux.txt                       # display single file
+cat Linux.txt file2.txt             # display multiple files (back-to-back)
+cat > file2.txt                     # create a new file and type content
+                                    # press Ctrl+D to save and exit
+```
+
+**Useful flags:**
+
+| Flag | Purpose |
+|------|---------|
+| `-n` | Number all lines (1 to end of file) |
+| `-b` | Number only non-empty lines |
+
+**Example:**
+```bash
+$ cat -n file2.txt
+     1
+     2  hello this is my file 2
+
+$ cat -b file2.txt
+     1  hello this is my file 2
+```
+
+---
+
+### `less` — view large files page by page
+
+Better than `cat` for big files because it lets you scroll and search.
+
+```bash
+less /home/taha-asim/Desktop/Linux-Notes/Linux.txt
+```
+
+**Navigation inside `less`:**
+
+| Key | Action |
+|-----|--------|
+| `↑ ↓` (arrows) | Scroll line by line |
+| `Space` | Page down |
+| `g` | Jump to beginning |
+| `G` | Jump to end |
+| `h` | Show help menu |
+| `q` | Quit |
+
+**Searching inside `less`:**
+
+| Key | Action |
+|-----|--------|
+| `/term` | Search **forward** for term |
+| `?term` | Search **backward** for term |
+| `n` | Next match (same direction) |
+| `N` | Previous match (opposite direction) |
+
+> 💡 **Real use:** `less /var/log/auth.log` then `/Failed` walks you through every failed login attempt — exactly how you'd hunt suspicious activity.
+
+---
+
+## 📜 Command History
+
+```bash
+history          # shows all the commands you've typed in this session
+```
+
+Useful for recalling that one perfect command you ran an hour ago.
+
+---
+
+## 📋 Copying Files (`cp`)
+
+### Basic Syntax
+
+```bash
+cp [source] [destination]
+```
+
+```bash
+cp file2.txt /home/taha-asim/Desktop
+```
+
+### Wildcards (Glob Patterns)
+
+| Wildcard | Matches |
+|----------|---------|
+| `*` | Any sequence of characters |
+| `?` | Exactly one character |
+| `[ ]` | Any one of the characters inside |
+
+```bash
+cp *.txt /home/taha-asim/Documents      # copy all txt files
+cp file?.txt /backup/                    # file1.txt, fileA.txt, etc.
+cp [abc].txt /backup/                    # a.txt, b.txt, or c.txt
+```
+
+### Copying Directories
+
+Use `-r` (recursive) to copy folders and their contents:
+
+```bash
+cp -r Linux-Notes/ /home/taha-asim/Documents
+```
+
+### Important Flags
+
+#### `-i` — Interactive (ask before overwriting)
+
+```bash
+cp -i source.txt dest.txt
+```
+
+```
+   ┌─ Does dest.txt already exist?
+   │
+   ├─ NO  → Just copy silently. Done.
+   │
+   └─ YES → STOP. Ask: "overwrite?"
+            ├─ y → overwrites
+            └─ n → cancels
+```
+
+**Real example:**
+```bash
+$ cp -i file2.txt /home/taha-asim/Documents
+cp: overwrite '/home/taha-asim/Documents/file2.txt'? y
+```
+
+#### `-f` — Force overwrite (no asking)
+
+```bash
+cp -f file2.txt /home/taha-asim/Documents
+```
+
+Same effect as `-i` accepting yes, but **without prompting**. Use carefully.
+
+#### `-p` — Preserve timestamps & metadata
+
+| | Without `-p` | With `-p` |
+|---|---|---|
+| **Timestamp** | Set to current time | Original timestamp kept |
+| **Owner** | Becomes you | Original owner kept |
+| **Permissions** | Default | Original permissions kept |
+
+```bash
+cp -p file.txt backup/
+```
+
+> 🔐 **Why it matters:** for backups, forensics, or migrations, preserving timestamps is critical — they're evidence of when something actually happened.
+
+---
+
+## 🔄 Moving & Renaming (`mv`)
+
+`mv` does **two jobs**: moving files between folders, and renaming files in place.
+
+### Renaming
+
+```bash
+mv oldfile newfile
+```
+
+Same syntax works for directories.
+
+### Moving
+
+```bash
+mv file.txt /home/taha-asim/Documents/
+```
+
+### Useful Flags
+
+| Flag | Purpose |
+|------|---------|
+| `-i` | Ask before overwriting |
+| `-b` | Backup the existing file with a `~` suffix before overwriting |
+| `-v` | Verbose — show what's being done |
+
+**Example:**
+```bash
+$ mv -v file2.txt testfile.txt
+renamed 'file2.txt' -> 'testfile.txt'
+```
+
+> 💡 **`-b` in action:** if you `mv -b new.txt /docs/` and `/docs/new.txt` already exists, the old one becomes `/docs/new.txt~` (backup) and your new file takes its place.
+
+---
+
+## 📁 Creating Directories (`mkdir`)
+
+```bash
+mkdir folder_name
+```
+
+### `-p` — Create parent directories as needed
+
+Creates the entire path even if the parent folders don't exist:
+
+```bash
+mkdir -p books/title/author
+```
+
+This single command creates all three folders (`books`, `title`, `author`) in one go. Without `-p`, you'd have to make them one at a time.
+
+---
+
+## 🗑️ Removing Files (`rm`)
+
+> ⚠️ **Warning:** `rm` is permanent. There is no recycle bin in Linux. Once it's gone, it's gone.
+
+### Basic Usage
+
+```bash
+rm file1
+```
+
+### Flags
+
+| Flag | Purpose |
+|------|---------|
+| `-i` | Ask for confirmation before each deletion |
+| `-f` | Force — delete without prompting (dangerous) |
+| `-r` | Recursive — delete folders and their contents |
+| `-v` | Verbose — show what's being deleted |
+
+**Examples:**
+```bash
+rm -i file1                  # asks before deleting
+rm -f file1                  # deletes silently, no questions
+rm -r D1                     # delete a directory and everything inside
+rm -rf folder/               # nuclear option — recursive force delete
+```
+
+### `rmdir` — Remove an Empty Directory
+
+```bash
+rmdir D1
+```
+
+Only works if the directory is **completely empty**. Safer than `rm -r` when you just want to clean up an empty folder.
+
+---
+
+## 🔎 Finding Files (`find`)
+
+```bash
+find [path] [expression]
+```
+
+### Search by Name
+
+```bash
+find /home -name myfile.txt
+find -name file2.txt
+# Output: ./Desktop/file2.txt
+```
+
+### Search by Type
+
+| Flag | Meaning |
+|------|---------|
+| `-type f` | Files only |
+| `-type d` | Directories only |
+
+```bash
+find -type d -name Linux-Notes
+# Output: ./Desktop/Linux-Notes
+```
+
+> 💡 **Pro tip:** `find` is the proper way to search across folder trees. Wildcards like `*` only work in one folder at a time.
+
+---
+
+## ❓ Getting Help
+
+### `--help` — Quick flag reference
+
+```bash
+ls --help
+```
+
+Shows a quick summary of a command's flags and usage.
+
+### `man` — Full manual
+
+```bash
+man ls
+```
+
+Opens the complete manual page for a command. Navigate with `less`-style keys (`/`, `n`, `q`).
+
+### `whatis` — One-line description
+
+```bash
+whatis cp
+# cp (1) - copy files and directories
+```
+
+Quick way to remember what a command does without opening the full manual.
+
+---
+
+## ⚡ Aliases
+
+Aliases are shortcuts for commands you type often.
+
+### Creating a Permanent Alias
+
+1. Open your bash config:
+   ```bash
+   nano ~/.bashrc
+   ```
+
+2. Add your aliases at the bottom:
+   ```bash
+   alias show='cat'
+   alias update='sudo apt update && sudo apt upgrade'
+   ```
+
+3. Save: `Ctrl + O`, then `Enter`
+
+4. Exit: `Ctrl + X`
+
+5. Reload bash to apply:
+   ```bash
+   source ~/.bashrc
+   ```
+
+### Removing an Alias
+
+```bash
+unalias show
+```
+
+### Useful Aliases to Add
+
+```bash
+# Navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ll='ls -lah'
+
+# Safety
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# Shortcuts
+alias update='sudo apt update && sudo apt upgrade -y'
+alias gs='git status'
+```
+
+---
+<div align="center">
+
+# 🐧 Linux Command Reference
+
+### *My day-by-day notes on essential Linux commands — written as I learn.*
+
+[![Linux](https://img.shields.io/badge/Linux-Ubuntu_24.04-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)](https://ubuntu.com/)
+[![Bash](https://img.shields.io/badge/Shell-Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
+[![Status](https://img.shields.io/badge/Status-Living_Document-blue?style=for-the-badge)](https://github.com/Tahaasim502)
+[![Phase](https://img.shields.io/badge/Phase-Foundations-yellow?style=for-the-badge)](https://github.com/Tahaasim502)
+
+---
+
+*"The best way to learn Linux is to live in it."*
+
+</div>
+
+---
+
+## 📖 About
+
+This is my personal Linux command reference, built as I work through my **60-day Linux mastery plan** on the path to becoming a Security Engineer. Every command here is one I've actually run, broken, fixed, and understood.
+
+If you're learning Linux too, feel free to fork this and start your own.
+
+---
